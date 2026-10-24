@@ -21,7 +21,7 @@ from pydantic_ai import Agent  # noqa: E402
 from pydantic_ai.messages import ModelResponse, ToolCallPart  # noqa: E402
 
 import agent as shop_agent  # noqa: E402
-from model import ChatReply, ShopDeps, ViewingContext  # noqa: E402
+from models import ChatReply, ShopDeps, ViewingContext  # noqa: E402
 from tools import SHOP_TOOLS, find_alternatives, viewing_context  # noqa: E402
 
 QUESTIONS = [

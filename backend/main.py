@@ -25,7 +25,7 @@ from agent import run_chat
 from auth import current_user
 from auth import router as auth_router
 from db import DATA_DIR, check_data_pack, connect
-from model import ChatHistoryResponse, ChatRequest, ChatResponse, ChatTurn, CustomerContext, PageResults, ShopDeps
+from models import ChatHistoryResponse, ChatRequest, ChatResponse, ChatTurn, CustomerContext, PageResults, ShopDeps
 from tools import cards_for, product_names, size_stock_map, viewing_context
 
 log = logging.getLogger("campus_customs")

@@ -237,7 +237,7 @@ The salt does not need to be secret, because it is stored openly next to the dig
 | `prompts/prompt.md` | **System prompt**: Campus Customs voice, how to use the tools, and safety basics. Grow this same file later. |
 | `agent.py` | Agent entry and wiring: loads the prompt and model, registers tools, adds shopper context, and runs a chat turn (`run_chat`). |
 | `tools.py` | Tools the agent can call (section 5). All are **read-only** on catalogue and inventory. Also `cards_for()`, a helper for `main.py`. |
-| `model.py` | `ShopDeps` (run context); tool result types (section 5); `ChatReply` (agent output); `ChatTurn`, `ChatRequest`, `ChatResponse`, `ChatHistoryResponse` (HTTP). |
+| `models.py` | `ShopDeps` (run context); tool result types (section 5); `ChatReply` (agent output); `ChatTurn`, `ChatRequest`, `ChatResponse`, `ChatHistoryResponse` (HTTP). |
 | `db.py` / `auth.py` | Working-copy DB connection (section 1) and accounts (section 3). |
 | `.env` | Non-secret settings: `PORTKEY_MODEL=gpt-6-luna`, `PORTKEY_BASE_URL`, `PYDANTIC_AI_NO_BANNER=1`. Gitignored. |
 
@@ -322,7 +322,7 @@ All lookups read the live **working copy** `data/campus_customs_new.db`, which i
 
 **Sizes (`normalize_size`):** "small"/"sm"→S, "medium"→M, "large"→L, "x-large"/"extra large"→XL, "2XL"/"xx-large"→XXL, "extra small"→XS. Anything else (e.g. "XXXL") gives `requested_size = null` and a note that we stock XS–XXL.
 
-### Return types (`backend/model.py`) and why these fields
+### Return types (`backend/models.py`) and why these fields
 
 **`ProductRef`** — `product_id`, `name`, `url`. Every lookup result is wrapped around it.
 - `product_id`: the exact key, so the agent can call the next tool without guessing and can put it in `product_ids` for a card.
@@ -427,7 +427,7 @@ Click any card (on the page OR in the chat panel) → <Link to="/products/:produ
      Browser Back → the chat results are still on the page (state lives in context).
 ```
 
-### The API contract (`backend/model.py`)
+### The API contract (`backend/models.py`)
 
 **Agent output: `ChatReply`** (what the model must return)
 
@@ -566,7 +566,7 @@ ShopDeps.page → agent.py page_instructions() writes the "Where the shopper is"
 "Do you have this in pink?" → agent calls get_product_description("davenport-college-crewneck") directly
 ```
 
-Types (`backend/model.py`): **`PageContext`** (`path` ≤200 characters, `results_title` ≤120) is what the browser sends and is treated as **untrusted**. **`ViewingContext`** (`page`, `path`, `product: ProductRef | null`, `results_title`) is what the server derives and the agent sees.
+Types (`backend/models.py`): **`PageContext`** (`path` ≤200 characters, `results_title` ≤120) is what the browser sends and is treated as **untrusted**. **`ViewingContext`** (`page`, `path`, `product: ProductRef | null`, `results_title`) is what the server derives and the agent sees.
 
 ### New tools
 
@@ -601,7 +601,7 @@ Full write-up, with what/why/where for each, is in **`output/usability.md`**. Ha
 | Area | Change |
 |---|---|
 | API `GET /api/products` | Each product now also has `size_stock` (`{"XS": n, …, "XXL": n}`) for the size strip and the "My size" filter |
-| `ProductCard` (model.py) | New `size_stock` field. Used by chat cards and page results; its quantities are recorded for the output guard |
+| `ProductCard` (models.py) | New `size_stock` field. Used by chat cards and page results; its quantities are recorded for the output guard |
 | `ChatReply` / `ChatResponse` | New `suggestions: list[str]` (≤3 quick replies). `main.py clean_suggestions()` trims and de-duplicates |
 | New tool `find_alternatives` | `(product, size, max_price, limit) → AlternativesResult{original, size, original_size_quantity, alternatives[Alternative{product, size_quantity, size_label, why}], note}`. Also sets `last_search_ids`, so alternatives can go on the page |
 | prompt.md | "Suggested follow-ups" rule; sold-out size → call `find_alternatives`; tool table row |

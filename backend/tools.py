@@ -15,7 +15,7 @@ import sqlite3
 from pydantic_ai import RunContext
 
 from db import connect
-from model import (
+from models import (
     Alternative,
     AlternativesResult,
     CategorySummary,

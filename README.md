@@ -17,7 +17,7 @@ hw4/
 ├── backend/
 │   ├── main.py              # FastAPI app — run with: uvicorn main:app --reload --port 8000
 │   ├── agent.py             # agent entry/wiring (loads prompt + model, context, output guards)
-│   ├── model.py             # Pydantic / PydanticAI structured types
+│   ├── models.py            # Pydantic / PydanticAI structured types
 │   ├── tools.py             # tools the agent can call
 │   ├── prompts/prompt.md    # system prompt
 │   ├── auth.py              # create account / log in (PBKDF2 password hashing)
@@ -30,7 +30,7 @@ hw4/
     └── *.md / *.txt         # test results
 ```
 
-The agent is the four files `backend/prompts/prompt.md`, `backend/agent.py`, `backend/tools.py` and `backend/model.py`, next to `backend/main.py`.
+The agent is the four files `backend/prompts/prompt.md`, `backend/agent.py`, `backend/tools.py` and `backend/models.py`, next to `backend/main.py`.
 
 ## 1. Place the data pack
 

@@ -196,3 +196,11 @@ RESPONSE:
 - Staged 71 files; scanned them for the real Portkey key, session secret, Grace's test password, and password hash digests: none. Not pushed: .env files, campus_customs*.db, data/products images, backend/.session_secret, backend/test_accounts.local.md, the clone folder, DraftPrompts.rtf.
 - Layout notes: the agent file is model.py (as the user wrote; the image shows models.py). output/design.md, app_check.html, app_check_images/, audit_trail.json are for later problems.
 
+[16] 2026-10-24
+PROMPT:
+Rename backend/model.py to backend/models.py to match the layout image, update all imports and docs, test, and push.
+
+RESPONSE:
+- git mv backend/model.py -> backend/models.py (history kept). Updated imports in main.py, agent.py, tools.py, scripts/test_problem6.py, scripts/benchmark_alternatives.py; comments in agent.py and frontend/src/api.ts; docs README.md, output/harness.md, output/usability.md. Quoted past prompts and earlier log entries left as originally written.
+- Tested: clean import (cleared __pycache__), the running uvicorn reloaded OK (/api/health), live chat on the Fencing page (sold-out L -> 3 alternatives + chips), scripts/test_problem6.py 8/8, benchmark script imports. Committed and pushed to AmarantaUrsula/Hw4-AI-for-managers main.
+

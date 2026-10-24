@@ -6,7 +6,7 @@ How the agent is loaded
   from hw4/.env (copy .env.example), then backend/.env, then the parent folder's .env.
   There is no fallback model.
 - Tools: tools.SHOP_TOOLS (read-only catalogue + inventory).
-- Output: model.ChatReply (reply text + product_ids for cards), checked by
+- Output: models.ChatReply (reply text + product_ids for cards), checked by
   no_invented_numbers(): every $ price and stock count in the reply must have come
   from a tool during this message, or the model is told to look it up and retry.
 """
@@ -23,7 +23,7 @@ from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, Text
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
 
-from model import ChatReply, ChatTurn, ShopDeps
+from models import ChatReply, ChatTurn, ShopDeps
 from tools import SHOP_TOOLS
 
 BACKEND_DIR = Path(__file__).resolve().parent

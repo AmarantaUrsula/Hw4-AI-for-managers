@@ -20,7 +20,7 @@ export interface Product {
   size_stock?: Record<string, number>; // {"XS": 0, "S": 12, ...} — Problem 9 size strip
 }
 
-// Product card as returned by /api/chat (backend model.ProductCard).
+// Product card as returned by /api/chat (backend models.ProductCard).
 export interface ChatProduct {
   product_id: string;
   name: string;
@@ -33,7 +33,7 @@ export interface ChatProduct {
   size_stock?: Record<string, number>;
 }
 
-// Chat search results the website shows on the page (backend model.PageResults, Problem 7).
+// Chat search results the website shows on the page (backend models.PageResults, Problem 7).
 export interface PageResults {
   title: string;
   query: string;
@@ -46,7 +46,7 @@ export interface ChatTurn {
   content: string;
 }
 
-// POST /api/chat response (backend model.ChatResponse) — the chat -> page API contract.
+// POST /api/chat response (backend models.ChatResponse) — the chat -> page API contract.
 export interface ChatReply {
   reply: string;
   products: ChatProduct[];

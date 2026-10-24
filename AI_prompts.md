@@ -160,3 +160,8 @@ The proof that each problem is done correctly and completely is the running site
 **Follow-up prompt:** None needed.
 
 **Evidence:** public repo https://github.com/AmarantaUrsula/Hw4-AI-for-managers (branch `main`). `.gitignore` excludes `.env`, `data/` (database + images), the session secret, and the local test-password file; `.env.example` has placeholders only; `requirements.txt` and `README.md` (place data pack → `.env` → backend → frontend) added. All staged files were scanned for the real key, session secret, test password, and password hashes before pushing (none found).
+
+**Follow-up prompt:**
+> Rename backend/model.py to backend/models.py to match the layout image, update all imports and docs, test, and push.
+
+**What the first prompt was missing:** It named the types file `model.py` while the layout image showed `models.py`, so the two didn't agree and the file had to be renamed to match the image.

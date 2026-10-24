@@ -18,7 +18,7 @@ sys.path.insert(0, str(HW4 / "backend"))
 from pydantic_ai.messages import ModelResponse, ToolCallPart  # noqa: E402
 
 from agent import PRICE_RE, QTY_RE, get_agent  # noqa: E402
-from model import ChatTurn, ShopDeps  # noqa: E402
+from models import ChatTurn, ShopDeps  # noqa: E402
 
 DB = HW4 / "data" / "campus_customs_new.db"
 

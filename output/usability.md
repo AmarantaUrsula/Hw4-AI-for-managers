@@ -81,7 +81,7 @@ Four improvements: two on the front end and two in the agent/backend. Each secti
 ## Agent/backend 2 — `find_alternatives` tool for sold-out sizes
 
 **What I added**
-- A new agent tool, `find_alternatives(product, size, max_price, limit)` (`backend/tools.py`). In **one call** it returns up to 6 similar products that **have the requested size in stock**, each with its live quantity and label for that size ("In stock (8)", "Only 2 left") and **why** it's similar. Ranking: same category, then shared name words and tags (college, sport, school, style, color), then closest price. Return types `AlternativesResult` / `Alternative` are in `backend/model.py`.
+- A new agent tool, `find_alternatives(product, size, max_price, limit)` (`backend/tools.py`). In **one call** it returns up to 6 similar products that **have the requested size in stock**, each with its live quantity and label for that size ("In stock (8)", "Only 2 left") and **why** it's similar. Ranking: same category, then shared name words and tags (college, sport, school, style, color), then closest price. Return types `AlternativesResult` / `Alternative` are in `backend/models.py`.
 - **Prompt rule:** when the shopper's size is sold out, say so clearly first, then call `find_alternatives` and offer the top 2–3 as "similar styles that have your size" (as chat cards).
 - Its prices and quantities are recorded for the Problem 6 output guard, so the agent still can't invent a number.
 
