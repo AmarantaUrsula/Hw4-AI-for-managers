@@ -21,11 +21,16 @@ hw4/
 │   ├── tools.py             # tools the agent can call
 │   ├── prompts/prompt.md    # system prompt
 │   ├── auth.py              # create account / log in (PBKDF2 password hashing)
+│   ├── audit.py             # append-only audit trail of every agent run
 │   └── db.py                # database paths: original vs working copy
 ├── scripts/                 # evidence scripts (tool tests, benchmark)
 └── output/
     ├── harness.md           # data, API, agent, tools, memory, page context — the reference doc
     ├── usability.md         # Problem 9 usability improvements
+    ├── design.md            # Problem 10 visual design
+    ├── app_check.html       # Problem 11 live-site test report (open in a browser)
+    ├── app_check_images/    # screenshots linked from app_check.html
+    ├── audit_trail.json     # append-only log of agent-loop activity (never wiped)
     ├── screenshots/         # evidence screenshots per problem (pN_*.jpg)
     └── *.md / *.txt         # test results
 ```
@@ -92,6 +97,9 @@ Open **http://localhost:5174**. Vite forwards `/api` and `/media` to the backend
 
 ## Docs
 
-- `output/harness.md` covers the data model, API, how the agent is loaded, every tool and its return types, how chat history and customer and page context reach the agent, and the test results.
+- `output/harness.md` is the full reference. Start with "Start here" and sections 9–13: audit trail, every model field and why, tools and abilities, safety rules, and specs (loop limits, result caps, models, how to run).
+- `output/audit_trail.json` is an append-only record of every agent run: time, tool calls and results, guard retries, and the stop reason.
 - `output/usability.md` describes the four usability improvements and where to see them.
+- `output/design.md` explains the Problem 10 visual design and why it should keep shoppers around and buying.
+- `output/app_check.html` is the live-site test report (double-click to open). Its screenshots are in `output/app_check_images/`.
 - `AI_prompts.md` lists the prompts used to build this, by problem.

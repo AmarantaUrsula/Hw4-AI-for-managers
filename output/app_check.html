@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Campus Customs — App Check (Problem 11)</title>
+<style>
+  :root { --yale: #00356b; --ink: #1c2233; --muted: #5d6474; --line: #e7e0d2; --ivory: #faf7f0; --ok: #1e6b3a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--ivory); line-height: 1.55; }
+  header { background: var(--yale); color: #fff; padding: 1.6rem 2rem; border-bottom: 3px solid #c8892b; }
+  header h1 { margin: 0 0 0.3rem; font-family: Georgia, serif; font-size: 1.9rem; }
+  header p { margin: 0; color: #d8e2f0; }
+  main { max-width: 1060px; margin: 0 auto; padding: 1.5rem 1.5rem 3rem; }
+  .summary { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.3rem; margin-bottom: 1.5rem; }
+  .summary table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+  .summary td, .summary th { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--line); }
+  .pass { display: inline-block; background: #e3f2e7; color: var(--ok); font-weight: 700; padding: 0.1rem 0.55rem; border-radius: 999px; font-size: 0.82rem; }
+  section.check { background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--yale); border-radius: 12px; padding: 1.2rem 1.4rem 1.4rem; margin: 1.6rem 0; }
+  section.check h2 { font-family: Georgia, serif; color: var(--yale); margin: 0 0 0.4rem; font-size: 1.4rem; }
+  .ask { font-size: 0.95rem; color: var(--muted); margin: 0 0 0.8rem; }
+  .ask code { background: #f3eee3; padding: 0.1rem 0.35rem; border-radius: 4px; color: var(--ink); }
+  figure { margin: 0; }
+  figure a { display: block; }
+  figure img { width: 100%; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 20px rgba(0, 53, 107, 0.1); }
+  figcaption { margin-top: 0.7rem; font-size: 1rem; }
+  figcaption strong { color: var(--yale); }
+  table.db { border-collapse: collapse; margin-top: 0.7rem; font-size: 0.88rem; }
+  table.db th, table.db td { border: 1px solid var(--line); padding: 0.3rem 0.6rem; text-align: center; }
+  table.db th { background: #f3eee3; }
+  .zero { color: #8a1c1c; font-weight: 700; }
+  .low { background: #fff4d6; font-weight: 700; }
+  .meta { font-size: 0.85rem; color: var(--muted); }
+  footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 1rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Campus Customs — App Check</h1>
+  <p>HW4 Problem 11 · Live site tested on 2026-10-24 · frontend http://localhost:5174 → FastAPI backend :8000 → PydanticAI agent (gpt-6-luna via Portkey) → <code>data/campus_customs_new.db</code></p>
+</header>
+
+<main>
+  <div class="summary">
+    <table>
+      <tr><th>#</th><th>Check</th><th>Result</th></tr>
+      <tr><td>1</td><td><a href="#check1">Chat checks an item's inventory level (honest stock + price from the DB)</a></td><td><span class="pass">PASS</span></td></tr>
+      <tr><td>2</td><td><a href="#check2">Category question → dynamic search result cards appear on the page</a></td><td><span class="pass">PASS</span></td></tr>
+      <tr><td>3</td><td><a href="#check3">Problem 9 usability feature: "My size" filter + color-blind-safe size strips</a></td><td><span class="pass">PASS</span></td></tr>
+      <tr><td>+</td><td><a href="#bonus">Bonus — Problem 9 agent feature: in-stock alternatives when a size is sold out</a></td><td><span class="pass">PASS</span></td></tr>
+    </table>
+    <p class="meta">Every number in the screenshots was compared with a direct SQLite query of the same database at test time (tables below each screenshot). Click any screenshot to open it full size.</p>
+  </div>
+
+  <section class="check" id="check1">
+    <h2>Check 1 — Chat checks inventory and price from the database</h2>
+    <p class="ask">On the <em>Basic Hoodie Big Yale</em> product page, the shopper asked the chat: <code>How much is this hoodie, and how many are left in XL? What about size S?</code></p>
+    <figure>
+      <a href="app_check_images/inventory.png"><img src="app_check_images/inventory.png" alt="Chat answering: The Basic Hoodie Big Yale is $68.00. There are only 2 left in XL and only 5 left in S." /></a>
+      <figcaption>
+        <strong>What it proves:</strong> the agent answered "<em>$68.00 … only 2 left in XL and only 5 left in S</em>", which is exactly the database's price and stock (below). It looked them up with its <code>get_product_price</code> / <code>get_stock</code> tools instead of guessing, and the page's own size buttons ("S ! Only 5 left") agree.
+      </figcaption>
+    </figure>
+    <table class="db">
+      <tr><th colspan="7">DB: catalogue + inventory for <code>basic-hoodie-big-yale</code></th></tr>
+      <tr><th>price</th><th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th></tr>
+      <tr><td>$68.00</td><td>15</td><td class="low">5</td><td>5</td><td>8</td><td class="low">2</td><td>25</td></tr>
+    </table>
+  </section>
+
+  <section class="check" id="check2">
+    <h2>Check 2 — Category question fills the page with product cards</h2>
+    <p class="ask">On the Home page, the shopper asked the chat: <code>What hoodies do you have?</code></p>
+    <figure>
+      <a href="app_check_images/search_cards.png"><img src="app_check_images/search_cards.png" alt="Home page showing 'From your chat — Hoodies (25)' grid of product cards next to the chat reply" /></a>
+      <figcaption>
+        <strong>What it proves:</strong> the agent's search came back as structured results, and the website rendered them <em>on the page</em> as a "💬 From your chat · Hoodies (25)" grid of product cards (image, name, price, short description, size strip). The chat says "Showing 25 hoodies on the page". The database has exactly 25 products in the Hoodies category, and each card opens its product page when clicked.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="check" id="check3">
+    <h2>Check 3 — Usability feature (Problem 9): "My size" filter + color-blind-safe size strips</h2>
+    <p class="ask">Products page with <strong>Hoodies</strong> + <strong>My size: XL</strong> + <strong>Sort: Price low → high</strong> (URL: <code>/products?cat=Hoodies&amp;size=XL&amp;sort=price-asc</code>).</p>
+    <figure>
+      <a href="app_check_images/usability_size_filter.png"><img src="app_check_images/usability_size_filter.png" alt="Products page toolbar filtered to hoodies with XL in stock, 19 of 102 products, cards with size strips" /></a>
+      <figcaption>
+        <strong>What it proves:</strong> the sticky toolbar filters to products that actually have XL in stock ("<em>19 of 102 products · size XL in stock</em>", matching the DB) and sorts cheapest first. Every card's size strip shows stock by shape and symbol, not just color: solid = in stock, amber "!" = 5 or fewer, dashed "✕" = sold out (e.g. Basic Hoodie Big Yale XL shows "!" for 2 left).
+      </figcaption>
+    </figure>
+    <table class="db">
+      <tr><th colspan="2">DB check (hoodies, size XL)</th></tr>
+      <tr><td>Hoodies in catalogue</td><td>25</td></tr>
+      <tr><td>…with XL in stock</td><td><strong>19</strong></td></tr>
+      <tr><td>Cheapest three</td><td>Yale Sports Hoodie Tennis $45 · Basic Hoodie Big Yale $68 (XL = <span class="low">2</span>) · Crew Left Chest Hoodie $68</td></tr>
+      <tr><td>Correctly hidden (XL = 0)</td><td>Champion Reverse Weave Hoodie 1, Ice Hockey Left Chest Hoodie, UA Gameday Double Knit Hood, Yale Grandma Hoodie, Yale Sports Hoodie Baseball, Yale Sports Hoodie Swimming</td></tr>
+    </table>
+  </section>
+
+  <section class="check" id="bonus">
+    <h2>Bonus — Usability feature (Problem 9): in-stock alternatives + quick replies</h2>
+    <p class="ask">On the <em>Fencing Left Chest Hoodie</em> page, the shopper asked: <code>Do you have this in a large?</code></p>
+    <figure>
+      <a href="app_check_images/usability_alternatives.png"><img src="app_check_images/usability_alternatives.png" alt="Chat says size L is sold out and offers three similar hoodies that have L, with quick-reply chips" /></a>
+      <figcaption>
+        <strong>What it proves:</strong> the agent clearly says <em>L is sold out</em>, then its <code>find_alternatives</code> tool offers three similar hoodies that <em>do</em> have L (all match the DB). Quick-reply chips ("Show other sizes"…) suggest the next step, so the shopper isn't left at a dead end.
+      </figcaption>
+    </figure>
+    <table class="db">
+      <tr><th>DB: size L</th><th>Fencing Left Chest Hoodie</th><th>Crew Left Chest Hoodie</th><th>Squash Left Chest Hoodie</th><th>Volleyball Left Chest Hoodie</th></tr>
+      <tr><td>quantity</td><td class="zero">0 (sold out)</td><td>8</td><td>25</td><td>8</td></tr>
+    </table>
+  </section>
+</main>
+<footer>Campus Customs · HW4 · screenshots in <code>output/app_check_images/</code></footer>
+</body>
+</html>

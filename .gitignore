@@ -23,3 +23,7 @@ frontend/dist/
 # Liza's GitHub Desktop clone of this same repo and personal prompt drafts
 Hw4 AI for managers/
 DraftPrompts.rtf
+
+# Audit trail helpers (the trail itself, output/audit_trail.json, IS committed)
+output/audit_trail.lock
+*.json.tmp

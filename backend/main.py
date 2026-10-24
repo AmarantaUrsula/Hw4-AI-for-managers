@@ -227,7 +227,7 @@ async def chat(req: ChatRequest, request: Request) -> ChatResponse:
     deps = ShopDeps(customer=customer_context(user),
                     page=viewing_context(page.path, page.results_title) if page else None)
     try:
-        output = await run_chat(req.message, history, deps)
+        output = await run_chat(req.message, history, deps, shopper=f"customer #{user['id']}" if user else "guest")
         response = ChatResponse(reply=output.reply, products=cards_for(output.product_ids),
                                 page=page_results(output.show_on_page, output.page_title, deps),
                                 suggestions=clean_suggestions(output.suggestions))

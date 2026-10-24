@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Product, formatPrice, shortDescription } from "../api";
+import { Product, category, formatPrice, shortDescription } from "../api";
 import SizeStrip from "./SizeStrip";
 
 // Works for catalogue products (Products/Home) and chat search results (ChatResults):
@@ -9,17 +9,22 @@ type CardProduct = Pick<Product, "product_id" | "name" | "price" | "image_url"> 
   description?: string;
   short_description?: string;
   size_stock?: Record<string, number>;
+  category?: string;
+  garment_type?: string;
 };
 
 export default function ProductCard({ product }: { product: CardProduct }) {
   const blurb = product.short_description ?? (product.description ? shortDescription(product.description) : "");
+  const cat = product.category ?? (product.garment_type ? category(product.garment_type) : "");
   return (
     <Link to={`/products/${product.product_id}`} className="card">
       <div className="card-img">
         <img src={product.image_url} alt={product.name} loading="lazy" />
         {product.total_stock === 0 && <span className="badge sold">✕ Sold out</span>}
+        <span className="card-view" aria-hidden>View details →</span>
       </div>
       <div className="card-body">
+        {cat && <p className="card-cat">{cat}</p>}
         <h3>{product.name}</h3>
         <p className="price">{formatPrice(product.price)}</p>
         {blurb && <p className="muted">{blurb}</p>}

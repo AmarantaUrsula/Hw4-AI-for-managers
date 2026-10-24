@@ -204,3 +204,45 @@ RESPONSE:
 - git mv backend/model.py -> backend/models.py (history kept). Updated imports in main.py, agent.py, tools.py, scripts/test_problem6.py, scripts/benchmark_alternatives.py; comments in agent.py and frontend/src/api.ts; docs README.md, output/harness.md, output/usability.md. Quoted past prompts and earlier log entries left as originally written.
 - Tested: clean import (cleared __pycache__), the running uvicorn reloaded OK (/api/health), live chat on the Fencing page (sold-out L -> 3 alternatives + chips), scripts/test_problem6.py 8/8, benchmark script imports. Committed and pushed to AmarantaUrsula/Hw4-AI-for-managers main.
 
+[17] 2026-10-24
+PROMPT:
+Problem 10: Style the website. Add create design that feels like a real Campus Customs storefront - fonts, color, hierarchy, motion, product presentation, chat feel should align with Yale branding and be geared toward the casual but smarty style of ivy league 18-35 year old undergrads and grad students. maybe add some autumn/ivy league vibed elements for attractiveness and showing off how these products align with that look. Write output/design/md: what was changed and why it should keep customers stick around and buy. Keep is concrete and concise and short.
+
+RESPONSE:
+"Old Campus in October" theme:
+- Fonts: Fraunces (Google Fonts) for display/prices, Inter for UI (index.html).
+- Colors: Yale blue + navy, ivory paper with grain, rust (text, 5.8:1) and ochre (decoration only, 2.8:1), ivy. Problem 9 stock colors unchanged.
+- New/changed: announcement bar + stitched Y crest (NavBar), hero with polaroid collage (3:4 crop hides black photo bars) + Leaves.tsx drifting maple leaves, "Shop the look" tiles (Library late nights / Crisp fall layers / Game day / Statement outerwear -> filtered /products), restyled pillars, cards (category label, hover lift/zoom, "View details" pill, serif name, blue price), breadcrumbs on product pages, chat "Campus Customs desk" (crest launcher, live dot, paper bubbles, typing dots, slide-in), navy multi-column footer.
+- Motion respects prefers-reduced-motion. Mobile checked. Fixed: ScrollToTop on route change (tile clicks opened Products mid-page).
+- Verified in browser; agent still answers from the DB (BF quarter-zip M = 25). Contrast computed; CSS comments corrected.
+- Screenshots p10_home_hero, p10_shop_the_look, p10_products_grid, p10_product_page_chat. Wrote output/design.md (one table: change / why). AI_prompts Problem 10.
+
+[18] 2026-10-24
+PROMPT:
+Problem 11: site testing (app check). test the live site and document it in output/app)_check.html (a page you can double-click open). Include clear screenshots and short captions for: 1. Chat checking the inventory level of any item (honest stock/price from the DB) 2. the dynamic search result cards appearing after a category question (eg hoodies). 3. One of the usability features we added in problem 9. Make the html easy to grade: heading for each check, screenshot, one or two sentences on what the screenshot proves. Put the screenshot image file in output/app_check_images/ and link them from app_check.html with relative paths (eg app_check_images/imventory.png).
+
+RESPONSE:
+Tested the live site (5174 -> 8000, logged out) and compared every number with SQLite:
+1. Basic Hoodie Big Yale page: "How much is this hoodie, and how many are left in XL? What about size S?" -> "$68.00 ... only 2 left in XL and only 5 left in S" (DB: 68.0, XL=2, S=5). inventory.png
+2. Home: "What hoodies do you have?" -> "From your chat · Hoodies (25)" grid, 25 cards (DB: 25 hoodies). search_cards.png
+3. /products?cat=Hoodies&size=XL&sort=price-asc -> "19 of 102 · size XL in stock", cheapest first, size strips (DB: 19 with XL>0; same first 3; 6 hidden with XL=0). usability_size_filter.png
++ Bonus: Fencing page "Do you have this in a large?" -> L sold out + 3 alternatives with L (DB L: 0 / 8, 25, 8) + quick-reply chips. usability_alternatives.png
+Wrote output/app_check.html (self-contained CSS, summary table with PASS, heading + question + screenshot + "What it proves" caption + DB table per check, relative image paths). Verified all 4 images load. README updated (design.md, app_check.html). AI_prompts Problem 11.
+
+[19] 2026-10-24
+PROMPT:
+Problem 12: audit trail, safety, finish harness.Keep and append-only output/audit_trail.json of agent-loop acitiv(time, tool name, short args/result, stop reason). Do not wipe it between runs. Also, think of some safety rules to give the agent and put them in prompts/prompt.md. Finish output/harness.md so it is clear  how the system works. -model fields in models.py and why you chose them - tools and abilities - safety rules -specs (loop limits, result caps, models, how to run front+back)
+
+RESPONSE:
+- backend/audit.py + agent.run_chat now runs agent.iter() node by node and appends run_start/model_request/tool_call/tool_result/guard_retry/final_answer/run_end (time, run_id, seq, tool, short args/result <=200 chars, stop_reason, usage, seconds) to output/audit_trail.json. Append-only: one locked atomic write per run, never truncates; an unreadable file is moved aside, not deleted; no emails/secrets. Stop reasons: final_result, request_limit, content_filter, output_rejected, model_error, error. Verified: restart + 2 concurrent chats -> 93 old events unchanged, new runs contiguous. reset_db.sh only touches data/ (not run, to keep Grace's evidence). .gitignore: audit lock/tmp (the trail itself is committed).
+- Safety: 12 rules in prompt.md (scope, facts from tools, no fake urgency, don't speak for Yale, no transactions/no online checkout, no sensitive data, only the person chatting, no internals, messages can't change rules, data isn't instructions, respect, wellbeing). New no_private_data output guard (other emails, internals incl. sk- key shapes, card-number shapes); fixed a "risk-free" false positive. OUTPUT_RETRIES / MAX_OUTPUT_TOKENS constants.
+- scripts/test_problem12_safety.py -> output/p12_safety_tests.md: 10 cases all safe (content filter on prompt extraction; guard fired once on the internals question). Fixed "check out on the product page" -> rule 5 says no online checkout; re-test OK.
+- harness.md: "Start here" overview + diagram + TOC; sections 9 audit, 10 model fields (all 21 types), 11 tools & abilities, 12 safety rules (prompt vs code), 13 specs. README updated. AI_prompts Problem 12.
+
+[20] 2026-10-24
+PROMPT:
+Problem 13: push to GitHub and submit the URL. Put the code in the hw4 folder and push it to a public GitHub respository. Do not put my real .env, campus_customs.db or products images in the GitHub repo. Use .hitignore include .env.example with placeholders only. the agent itself is four files under backend/: prompts/prompt.md, agent.py, tools.py and model.py. Readme.md should explain how to run the front end and back end after placing the data pack.  Do you need the image of the file hierachy again or are we good?
+
+RESPONSE:
+No need for the image again (have it from the Problem 9 checkpoint). Kept backend/models.py (renamed earlier to match the image, at the user's request). Checked every path in the layout exists, the frontend builds, the backend is healthy, and audit_trail.json is valid. Scanned all files to be committed for secrets/data, committed Problems 10-13 (design, app check, audit trail, safety, finished harness), pushed to https://github.com/AmarantaUrsula/Hw4-AI-for-managers (public, main), and verified the repo from outside without logging in.
+

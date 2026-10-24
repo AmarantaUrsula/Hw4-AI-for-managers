@@ -87,7 +87,11 @@ export default function ChatWidget() {
       {open && (
         <section className="chat-panel" aria-label="Chat with Campus Customs">
           <header className="chat-head">
-            <strong>Campus Customs chat</strong>
+            <span className="chat-avatar" aria-hidden>Y</span>
+            <div className="chat-title">
+              <strong>Campus Customs desk</strong>
+              <small><span className="live-dot" aria-hidden /> Checks live sizes &amp; stock</small>
+            </div>
             <button className="chat-close" onClick={() => setOpen(false)} aria-label="Close chat">
               ×
             </button>
@@ -119,7 +123,11 @@ export default function ChatWidget() {
                 )}
               </div>
             ))}
-            {busy && <div className="chat-msg assistant typing">Looking that up…</div>}
+            {busy && (
+              <div className="chat-msg assistant typing" aria-label="Looking that up">
+                <span className="dot" /><span className="dot" /><span className="dot" />
+              </div>
+            )}
             <div ref={endRef} />
           </div>
           <form className="chat-form" onSubmit={onSubmit}>
@@ -137,7 +145,7 @@ export default function ChatWidget() {
         </section>
       )}
       <button className="chat-toggle" onClick={() => setOpen((o) => !o)} aria-label="Open chat">
-        {open ? "×" : "💬 Chat"}
+        {open ? "×" : <><span className="chat-toggle-mark" aria-hidden>Y</span> Ask Campus Customs</>}
       </button>
     </div>
   );

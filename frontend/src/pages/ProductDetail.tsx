@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Product, fetchProduct, formatPrice, stockLevel } from "../api";
+import { Product, category, fetchProduct, formatPrice, stockLevel } from "../api";
 import { SizeLegend } from "../components/SizeStrip";
 
 function stockLabel(q: number) {
@@ -44,7 +44,13 @@ export default function ProductDetail() {
 
   return (
     <section className="page">
-      <Link to="/products" className="back">← All products</Link>
+      <nav className="crumbs" aria-label="Breadcrumb">
+        <Link to="/products">Shop</Link>
+        <span aria-hidden>/</span>
+        <Link to={`/products?cat=${encodeURIComponent(category(product.garment_type))}`}>{category(product.garment_type)}</Link>
+        <span aria-hidden>/</span>
+        <span aria-current="page">{product.name}</span>
+      </nav>
       <div className="detail">
         <div className="detail-img">
           <img src={product.image_url} alt={product.name} />

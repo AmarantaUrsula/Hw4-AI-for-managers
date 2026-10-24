@@ -17,12 +17,20 @@ export default function NavBar() {
   }
 
   return (
+    <>
+      <div className="announce" role="note">
+        <span>Fall ’26 on Old Campus</span>
+        <span className="announce-dot" aria-hidden>✦</span>
+        <span>Officially licensed Yale apparel</span>
+        <span className="announce-dot" aria-hidden>✦</span>
+        <span>57 Broadway, New Haven</span>
+      </div>
     <header className="nav">
-      <Link to="/" className="brand">
-        <span className="brand-mark">Y</span>
+      <Link to="/" className="brand" aria-label="Campus Customs home">
+        <span className="brand-mark" aria-hidden>Y</span>
         <span>
           Campus Customs
-          <small>Yale apparel · New Haven</small>
+          <small>Est. on Broadway · New Haven, CT</small>
         </span>
       </Link>
       <nav className="nav-links">
@@ -48,5 +56,6 @@ export default function NavBar() {
         )}
       </nav>
     </header>
+    </>
   );
 }

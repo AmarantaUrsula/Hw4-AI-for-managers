@@ -165,3 +165,58 @@ The proof that each problem is done correctly and completely is the running site
 > Rename backend/model.py to backend/models.py to match the layout image, update all imports and docs, test, and push.
 
 **What the first prompt was missing:** It named the types file `model.py` while the layout image showed `models.py`, so the two didn't agree and the file had to be renamed to match the image.
+
+---
+
+## Problem 10: Style the website
+
+**Prompt I typed:**
+> Problem 10: Style the website. Add a creative design that feels like a real Campus Customs storefront — fonts, color, hierarchy, motion, product presentation, chat feel should align with Yale branding and be geared toward the casual but smart style of Ivy League 18–35 year old undergrads and grad students. Maybe add some autumn/Ivy League vibed elements for attractiveness and showing off how these products align with that look. Write output/design.md: what was changed and why it should keep customers sticking around and buying. Keep it concrete, concise and short.
+
+**Follow-up prompt:** None needed.
+
+**Evidence:**
+- Running site: "Old Campus in October" theme. Fraunces/Inter type, Yale blue on ivory with rust/ochre accents, announcement bar, stitched "Y" crest, polaroid hero with drifting leaves, "Shop the look" tiles linking to filtered Products, card hover lift, breadcrumbs, and the "Campus Customs desk" chat. Screenshots: `output/screenshots/p10_home_hero.jpg`, `p10_shop_the_look.jpg`, `p10_products_grid.jpg`, `p10_product_page_chat.jpg`.
+- Checks: text colors pass WCAG AA (computed), motion off for reduced-motion users, phone width stacks correctly, and the chat still answers from the DB (Benjamin Franklin 1/4 Zip M = 25 → "Size M is in stock"). Fixed a scroll-position bug found while testing.
+- Write-up: `output/design.md` (what changed + why it keeps shoppers around and buying).
+
+---
+
+## Problem 11: Site testing (app check)
+
+**Prompt I typed:**
+> Problem 11: site testing (app check). Test the live site and document it in output/app_check.html (a page you can double-click open). Include clear screenshots and short captions for: 1. Chat checking the inventory level of any item (honest stock/price from the DB) 2. The dynamic search result cards appearing after a category question (e.g. hoodies). 3. One of the usability features we added in Problem 9. Make the HTML easy to grade: heading for each check, screenshot, one or two sentences on what the screenshot proves. Put the screenshot image files in output/app_check_images/ and link them from app_check.html with relative paths (e.g. app_check_images/inventory.png).
+
+**Follow-up prompt:** None needed.
+
+**Evidence:**
+- `output/app_check.html`: summary table (all PASS), then one section per check with a heading, the question asked, the screenshot, and a "What it proves" caption. Images are linked relatively from `output/app_check_images/` (`inventory.png`, `search_cards.png`, `usability_size_filter.png`, plus a bonus `usability_alternatives.png`).
+- Database: each check includes the values from a direct SQLite query at test time. Basic Hoodie Big Yale is $68.00 with XL = 2 and S = 5; 25 hoodies; 19 hoodies with XL in stock; Fencing hoodie L = 0, and the 3 alternatives have L = 8/25/8. All match what the site and chat showed.
+- Verified the HTML renders with all 4 images loading.
+
+---
+
+## Problem 12: Audit trail, safety, finish harness
+
+**Prompt I typed:**
+> Problem 12: audit trail, safety, finish harness. Keep an append-only output/audit_trail.json of agent-loop activity (time, tool name, short args/result, stop reason). Do not wipe it between runs. Also, think of some safety rules to give the agent and put them in prompts/prompt.md. Finish output/harness.md so it is clear how the system works: model fields in models.py and why you chose them; tools and abilities; safety rules; specs (loop limits, result caps, models, how to run front + back).
+
+**Follow-up prompt:** None needed.
+
+**Evidence:**
+- `output/audit_trail.json`: every chat run is logged step by step (run_start → model_request → tool_call/tool_result → guard_retry → final_answer → run_end with stop_reason and token usage) by `backend/audit.py`. Verified append-only: after a backend restart and two simultaneous chats, all earlier events were unchanged and the new runs were appended as complete blocks.
+- Safety: 12 rules in `backend/prompts/prompt.md`, plus a new `no_private_data` output guard in code (other people's emails, internals, card-number shapes). `output/p12_safety_tests.md` covers 10 adversarial and control messages, all handled safely; the guard fired once and forced a rewrite.
+- `output/harness.md`: new "Start here" overview with a diagram and table of contents, plus sections 9 (audit trail), 10 (every `models.py` field and why), 11 (tools and abilities), 12 (safety rules + code enforcement), and 13 (specs: loop limits, result caps, models, how to run).
+
+---
+
+## Problem 13: Push to GitHub and submit the URL
+
+**Prompt I typed:**
+> Problem 13: push to GitHub and submit the URL. Put the code in the hw4 folder and push it to a public GitHub repository. Do not put my real .env, campus_customs.db or products images in the GitHub repo. Use .gitignore; include .env.example with placeholders only. The agent itself is four files under backend/: prompts/prompt.md, agent.py, tools.py and model.py. README.md should explain how to run the front end and back end after placing the data pack. Do you need the image of the file hierarchy again or are we good?
+
+**Follow-up prompt:** None needed. (The layout image had already been shared at the Problem 9 checkpoint; the types file is `backend/models.py` to match that image, as agreed then.)
+
+**Submission URL:** https://github.com/AmarantaUrsula/Hw4-AI-for-managers
+
+**Evidence:** the public repo (branch `main`) has the layout from the image: `AI_prompts.md`, `requirements.txt`, `.env.example` (placeholders), `.gitignore`, `README.md` (place data pack → `.env` → backend on :8000 → frontend on :5174), `frontend/`, `backend/` (main.py, agent.py, models.py, tools.py, prompts/prompt.md), and `output/` (harness.md, design.md, usability.md, app_check.html, app_check_images/, audit_trail.json). Before pushing, every committed file was scanned for the real key, session secret, test password, and password hashes (none found). After pushing, the repo was checked without logging in: no `.env`, no `.db`, no `data/products` images.
