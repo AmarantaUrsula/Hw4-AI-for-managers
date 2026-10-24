@@ -1,0 +1,25 @@
+# ---- Secrets: never commit real keys (only .env.example is committed) ----
+.env
+*.env
+!.env.example
+backend/.session_secret
+backend/test_accounts.local.md
+
+# ---- Data pack: NOT in the repo (copy it into data/ yourself, see README.md) ----
+data/*
+!data/README.md
+*.db
+*.db-journal
+
+# ---- Build artifacts ----
+__pycache__/
+*.pyc
+node_modules/
+frontend/dist/
+
+# ---- Local-only files ----
+.DS_Store
+*.tmp
+# Liza's GitHub Desktop clone of this same repo and personal prompt drafts
+Hw4 AI for managers/
+DraftPrompts.rtf

@@ -1,0 +1,13 @@
+Problem 4 — users table after creating a new account (2026-10-24)
+
+id  name            email                         first   last      created_at           stored hash format
+1   Test User       test@campuscustoms.yale.edu   Test    User      2026-09-19 11:34:09  pbkdf2_sha256$<15-char salt>$<64-char hex digest>
+2   Ada Lovelace    ada.1789818990@yale.edu       Ada     Lovelace  2026-09-19 11:56:30  pbkdf2_sha256$<16-char salt>$<64-char hex digest>
+3   Tauhid Zaman    tauhid.zaman@yale.edu         Tauhid  Zaman     2026-09-19 11:57:56  pbkdf2_sha256$<16-char salt>$<64-char hex digest>
+4   Grace Bulldog   grace.bulldog@yale.edu        Grace   Bulldog   2026-10-24 15:10:58  pbkdf2_sha256$<32-char salt>$<64-char hex digest>
+
+Independent check with hashlib.pbkdf2_hmac('sha256', pw, salt, 120000):
+  user 1 (seed test password): MATCH
+  user 4 (made-up password from backend/test_accounts.local.md): MATCH
+
+Plaintext passwords stored anywhere in users: 0

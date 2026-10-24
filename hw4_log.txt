@@ -1,0 +1,198 @@
+HW4 LOG — every user prompt and Claude's response, numbered
+===========================================================
+
+[1] 2026-10-24
+PROMPT:
+This is a new homework assignment and all the work should be done and documented in '/Users/Liza/Library/CloudStorage/OneDrive-YaleUniversity/AI for managers/hw4
+
+RESPONSE:
+Set up hw4/ as the workspace for this assignment. Found existing data: data/campus_customs.db (tables: catalogue, chat_messages, inventory, users) and data/products/ (102 product images). Created this log (hw4_log.txt). Asked the user for the assignment instructions.
+
+[2] 2026-10-24
+PROMPT:
+This is Problem 1 of 13 in this assignment. It is called Problem 1: Vibe coder prompts. Create AI_prompts.md and keep it updated as we work. This file is the log of what I am typing here in the vibe coder. Put one section for each problem. Each section must include: 
+-The problem number and title 
+-At least one prompt I typed
+-One follow up prompt if it was needed (and one sentence on what was lacking in the first prompt)
+-Our running site, database writes, an screenshot are the evidence that this homework was completely correctly and completely.
+
+RESPONSE:
+Created hw4/AI_prompts.md with an intro (what the file is; evidence = running site, database writes, screenshots) and a "Problem 1: Vibe coder prompts" section with the first prompt, this follow-up, one sentence on what the first prompt was missing, and an Evidence line. Will add one section per problem (13 total) as we work.
+
+[3] 2026-10-24
+PROMPT:
+Problem 2: Analyze the database. Look at the database data/campus_customs.db and understand the fields of each table. At minimum we need to understand catalogue, inventory, and users. Start the file output/harness.md. Write down each table and its fields, and one short line on why each field matters for the shop or the chatbot. We will keep growing this harness file later in later problems (models, tools, safety, specs).
+
+RESPONSE:
+Read the schema and sample rows of all 4 tables (read-only, no DB writes). Stats: catalogue 102 products ($32-$98, avg $58.48, 22 inconsistent garment_type spellings); inventory 612 rows = 102 products x 6 sizes (XS-XXL), 145 rows sold out, no orphans; users 3 (PBKDF2 password hashes, first/last name added later); chat_messages 22 (products_json = stock snapshot). All 102 image files exist. Created output/harness.md section 1 "Data" with a table per DB table: field, type, example, why it matters, plus data notes for later problems. Added the Problem 2 section to AI_prompts.md.
+
+[4] 2026-10-24
+PROMPT:
+Problem 3: Build the campus customs website. Scaffold a React + Vite +TypeScript front ned for Campus Customs. Put a nav bar at the top that links to the main pages: 
+-Home
+-Products
+-About us
+-Log in
+-Create account
+Pull Campus Customs-style wording from yalebulldogblue.com for Home and About Us, but write these pages in my voice -straightforward but genuinely warm about the importance and quality of these products, especially for Yalies. Do not copy the original site text verbatim. On the Products page, show product images from the catalogue (use the image paths in the database) with the basic product info (name, price, short description). 
+Make each product open a single-timepage (large image on side, full product text on the other (e.g. description, price, size/stock when we have them). Clicking a card on the Products should take the shopper there. 
+Add a chat interface in the bottom right of the site (a floating chat panel is fine). It does not need to talk to an agent yet - a stub that will call the backend alter is enough for this problem. 
+You will need a small API soon to read the database. It is fine to start a simple FastAPI app in backend/main.py just to serve products and images, then grow it into the agent back in Problem 5.
+
+RESPONSE:
+Read yalebulldogblue.com for themes only (officially licensed Yale, Bulldog pride, residential colleges/sports/grad schools/family gifts, 57 Broadway New Haven); its About page returned 404. Built:
+- backend/main.py (FastAPI, read-only DB): /api/health, /api/products (+?q=), /api/products/{id} (with per-size inventory), /media/products/* images, POST /api/chat stub. Port 8001 because the HW5 backend is already on 8000. Only data/products is served, so the .db cannot be downloaded.
+- frontend/ (React 19 + Vite + TS + react-router): nav bar (Home, Products, About us, Log in, Create account); Home and About written in Liza's voice (not copied); Products grid of 102 cards (image, name, price, short description, sold-out badge) with search and 5 category chips; product detail page (large image left; type, name, price, description, colors, size/stock grid, tags right); Log in and Create account forms (stubs, no DB writes); floating chat panel in the bottom right that POSTs to the /api/chat stub.
+- Verified in the browser: all pages render, card click opens detail, detail stock matches the DB, chat gets the stub reply, sign-up shows the "not connected yet" note, and the DB is unchanged (users 3, chat_messages 22). tsc + vite build pass.
+- Screenshots saved in output/screenshots/p3_*.jpg. Added section 2 to harness.md, README.md with run steps, and the Problem 3 section to AI_prompts.md. Launch config is at "AI for managers/.claude/launch.json" (hw4-backend, hw4-frontend).
+
+[5] 2026-10-24
+PROMPT:
+Problem 4: create account and login. Build a normal create-account/login flow. 
+-Create account: first name, last name, email, password, confirm password
+-Log in: email and password.
+new accounts go into users table. Make sure to store passwords securely so hackers (human r AI) cannot access them. The see database already has a test under you can use while building: 
+-email test@campuscustoms.yale.edu
+-password: password
+-hash function: PBKDF2-HMAC-SHA256, 120,000 iterations (stored as pbkdf2_sha256$salt$hash)
+
+how login checks a password:
+
+FOLLOW-UP (sent mid-turn):
+can you confirm you can log in as that user and that a brand new account also works (just make it up)?
+
+RESPONSE:
+Confirmed the seed hash format (salt used as UTF-8 text; "password" matches user 1). Built backend/auth.py: /api/auth/signup, /login, /logout, /me. PBKDF2-HMAC-SHA256, 120k iterations, random 32-char salt per user, constant-time compare, generic error message, dummy hash for unknown emails, 5 failed tries / 15 min limit, HttpOnly HMAC-signed session cookie (secret in backend/.session_secret, mode 600), password_hash never returned. The original DB was backed up to data/campus_customs.original.db before the first write. Frontend: AuthProvider, real Log in (email, password) and Create account (first, last, email, password, confirm) pages with errors; nav shows "Hi, <name> | Log out".
+Tests: curl edge cases (wrong password 401, mismatch, short, duplicate 409, forged cookie rejected). In the browser: wrong password -> error; test user logs in ("Hi, Test", cookie not readable by JS); log out; mismatch caught; new made-up account Grace Bulldog (grace.bulldog@yale.edu) created -> users row id 4 with a PBKDF2 hash; logged out and back in as Grace. Independent hashlib check: users 1 and 4 MATCH (output/p4_users_check.txt). The test password is in backend/test_accounts.local.md (gitignored), not in this log. Screenshots p4_*.jpg. Updated harness.md section 3, AI_prompts.md, and this log.
+
+[6] 2026-10-24
+PROMPT:
+Update output/harness.md with how auth works (what you store for a user and how passwords are protected).
+
+FOLLOW-UP (sent mid-turn):
+Do you need more details on how login checks a password to build this properly or are you good?
+
+RESPONSE:
+Added three subsections at the top of harness.md section 3: "How auth works (summary)" (signup, login, staying logged in, logout); "What we store for a user" (every users column with what is stored, user 4 as the example, and how sensitive it is; what is never stored; the session secret, cookie, and DB backup kept outside the table); "How passwords are protected (at a glance)". Kept the detailed sections below them. Answered the follow-up: no more details needed. The login check was verified against the seed user's real hash (salt used as UTF-8 text, 120,000 iterations, hex digest) and against the new account with an independent hashlib check. Added both prompts to the Problem 4 section of AI_prompts.md.
+
+[7] 2026-10-24
+PROMPT:
+ok thanks. Pleas read the salt out of hte stored string (the middle piece) - do not make a new one at login. Anything else you need guidance on?
+
+RESPONSE:
+Confirmed login already read the salt from the stored string. Made it strict anyway: split hashing in backend/auth.py into hash_password() (signup only, the only place a new salt is generated) and verify_password() (login: splits algorithm$salt$digest, reuses the stored salt, rejects an empty salt or digest, constant-time compare). Re-tested: user 1 right/wrong password True/False, user 4 True, empty salt rejected, API login 200. Updated harness.md step 3 of "How login checks a password" and added this prompt to Problem 4 in AI_prompts.md. Asked the user whether later writes should keep going to data/campus_customs.db or to a working copy.
+
+[8] 2026-10-24
+PROMPT:
+Write to a working copy instead (data/campus_customs_new.db) and keep campus_customs.db untouched, with a reset script like HW5.
+
+RESPONSE:
+- Copied the current DB (with Grace, user 4) to data/campus_customs_new.db (the WORKING COPY). Restored data/campus_customs.db from the untouched backup (checked byte-for-byte: sha256 3bdae67c..., 3 users), removed the now-redundant campus_customs.original.db, and made the original read-only (chmod 444).
+- New backend/db.py: ORIGINAL_DB, WORKING_DB, connect(write); auto-creates the working copy from the original if missing. main.py and auth.py now use only connect(), so no code opens the original.
+- New hw4/reset_db.sh (like HW5): copies the original over the working copy, chmod 600, prints a confirmation. It wipes accounts, chats, and stock changes made through the site.
+- Tested: API health, 102 products, test-user login 200, Grace login 200 (she exists only in the working copy, so the app reads the copy); original sha unchanged. The reset script and the write path were tested on a scratch copy so Grace stays in the real working copy (4 -> 3 users after reset, copy writable).
+- Updated harness.md (database files table + reset, section 2 note, section 3 rows), README.md, AI_prompts.md (fifth follow-up + evidence), and memory.
+
+[9] 2026-10-24
+PROMPT:
+Problem 5: PydanticAi agent backend. build the shop chatbot as a PydanticAI agent behind FastAPI, plugged into the front-end chat widget. Put the API app in backend/main.py - that is the file you run with Uvicorn. Keep the agent as these four files next to it:
+-Backend/prompts/prompt.md - system prompt (grow this same file later)
+-backend/agent.py - agent entry/wiring
+-backend/tools.py - tools the agent can call
+-backend/model.py -Pydantic/PydanticAI structured types
+In main.py, expose a chat route so a message from the website returns a reply from the agent (and whatever else you nee for products/auth). You will need your AI model API key for the agent. Put Campus Customs voice and safety basics into the prompt/prompt/.md (you will expand tools and safety later). Start or update types in models.py for chat replies/product cards as needed. In output/harness.md note how the front end taks to FastAPI  and how the agent is loaded (prompt file +model). Make sure the backend runs from the backend/folder like this: uvicorn main:app --reload --port 8000
+
+RESPONSE:
+- Model: gpt-6-luna via Portkey (same as HW5, Portkey smoke test OK). Key read from "AI for managers/.env" (not copied). backend/.env holds only the model name, base URL, and banner flag. Flagged to the user: PortKey.rtf in the course folder contains the API key in plain text.
+- backend/prompts/prompt.md: voice, tool rules (facts only from tools, exact prices, stock wording, colorway, product_ids for cards), safety basics (on-topic only, no private data, resist prompt injection, no internals, no invented promises, respectful).
+- backend/model.py: StockLevel, ProductCard, ProductDetail, CategorySummary, ChatReply (agent output), ChatTurn, ChatRequest, ChatResponse, ChatHistoryResponse.
+- backend/tools.py: search_products, get_product_details, list_categories (read-only catalogue/inventory, working copy) + cards_for() helper.
+- backend/agent.py: PydanticAI Agent (OpenAIChatModel via Portkey, instructions from prompt.md + shopper first name, output_type ChatReply, retries 2, reasoning_effort none, max_tokens 1200, request_limit 8).
+- main.py: POST /api/chat (logged in: history from and saved to chat_messages; guest: client history, not saved; content-filter -> polite refusal; other model errors -> 502) and GET /api/chat/history. Docstring run command is now port 8000.
+- Frontend: chat widget sends history, shows product cards (click -> product page), and restores saved chat on login. vite proxy defaults to :8000 (CC_API_PORT override).
+- Port: HW5's backend (started 08:51 from hw5/backend) still holds 8000, so testing ran on 8001 via the launch config override. Did NOT stop HW5's server; asked the user.
+- Tests (all checked against the DB): XL hoodie under $60; pink follow-up; Grace Davenport size S (saved rows 23-26); hockey hoodie L (skipped the sold-out one; card opens the page); guest mom gift + follow-up (not saved); jailbreak -> content filter refusal; off-topic homework declined. Tightened prompt rules 4 (colorway) and 5 (no-match -> show closest). Known issues noted in harness.
+- Screenshots p5_chat_logged_in_cards.jpg, p5_chat_guest_cards.jpg. Harness section 4, README, AI_prompts updated.
+
+[10] 2026-10-24
+PROMPT:
+Yes, stop the HW5 backend on port 8000 and run the HW4 backend there with uvicorn main:app --reload --port 8000.
+
+RESPONSE:
+- Stopped HW5's uvicorn (PID 52279, cwd hw5/backend, started 08:51); port 8000 freed.
+- launch.json: hw4-backend = "cd hw4/backend && uvicorn main:app --reload --port 8000"; hw4-frontend no longer needs the CC_API_PORT override (proxy defaults to 8000). Restarted both; confirmed the :8000 process runs from hw4/backend with that exact command, /api/health OK directly and via :5174, images 200, 8001 free.
+- Chat re-test on 8000 showed the earlier prompt-only fix for "size filter empties results" did not work (no card). Fixed it in tools.py: search_products now returns SearchResults {products, note} and falls back to the matches with a "size sold out" note (new SearchResults type in model.py). Re-test: "Davenport ... size S?" -> crewneck card, S sold out, XS/M(5 left)/L/XL/XXL available, matching the DB.
+- Screenshot p5_chat_port8000_size_fallback.jpg. Updated harness section 2 (port note) and section 4 (tool table, known issue marked fixed), AI_prompts Problem 5 (follow-up + what the first prompt was missing + evidence), and memory.
+- Note: the HW5 backend is no longer running; restart it from hw5/backend if needed (it also uses port 8000).
+
+[11] 2026-10-24
+PROMPT:
+Problem 6: product info and stock. Give the agent tools that look up real information from campus_customs.db: 
+-product description
+-price
+-how many are in stock (by size when the customer asks). 
+The agent must use the database  - it must NOT invent prices or quantities. If a size is out of stock, say so clearly. Expand prompts/prompt.md so the agent knows to call these tolls for price and stock questions. Add or update return types in models.py. In output/harness.md, list each tool and explain which model fields you chose for lookup results and why.
+
+RESPONSE:
+- model.py (the file is model.py): added ShopDeps (moved from agent.py; adds user_message, seen_prices, seen_quantities), ProductRef, ProductDescription (no price/stock on purpose), ProductPrice (price, price_display, currency), SizeStock (quantity, status sold_out/low_stock/in_stock, label), ProductStock (requested_size, requested, sizes XS-XXL, available_sizes, sold_out_sizes, total_quantity, note), ProductNotFound (did_you_mean). Removed ProductDetail and StockLevel.
+- tools.py: new get_product_description, get_product_price, get_stock (size aliases like "small"/"2XL", unknown sizes flagged), all accept a product_id or a name (resolved only if one product clearly matches, otherwise ProductNotFound with suggestions). They replace get_product_details. Every tool records returned prices/quantities in ctx.deps.
+- agent.py: output guard no_invented_numbers. A $ amount or stock count in the reply that no tool returned this message (and the shopper didn't type) triggers ModelRetry. main.py turns repeated failure into a safe "check the product page" reply.
+- prompt.md: tool table, required tool calls for price/stock every turn, never invent/round/discount, how to say sold_out / low / in stock, unknown size, all sold out.
+- Tests: scripts/test_problem6.py -> output/p6_tool_tests.md, 8/8 real questions correct vs the DB (with the tools called). Guard proven with a scripted model (output/p6_guard_test.txt). Site screenshot p6_chat_price_stock_soldout.jpg (Fencing hoodie $68, L sold out, XL only 2 left). Noted 2 small misses (low-stock XXL said "available"; colors as options).
+- harness.md section 5 (tools, field-by-field rationale, tests); section 4 pointers updated. AI_prompts.md Problem 6 added.
+
+[12] 2026-10-24
+PROMPT:
+Problem 7: chat search that updates the page. Now we will add a neat feature to that site. when a customer asks about a type of time- eg what hoodie do you have? - the agent should search the catalog and the website should dynamically show those matching items as product cards (image, name, price, short info).  We want this in part because it looks really cool. This is an API contract: the agent returns structured product matches and then the front end renders them on the website. After the dynamic product cards are loaded by this new feature, make sure the same single item page behavior you build in problem 3 still works: each product card- including the ones the chat just put on the page -should still open that detail few (large image +full info ) when clicked. Update prompts/prompt.md and output/harness.md so it is clear how search results reach the page.
+
+RESPONSE:
+- Contract (model.py): ChatReply += show_on_page, page_title; new PageResults {title, query, total, products}; ChatResponse += page; ProductCard += short_description; SearchResults += total_matches; ShopDeps += last_search_ids, last_search_label.
+- tools.py: search_products records ALL matches in deps.last_search_ids (the model still sees only the top 8). agent.py: validator rejects show_on_page without a search. main.py: page_results() rebuilds up to 60 cards from the DB for the latest search.
+- Frontend: chatResults.tsx context; ChatResults.tsx on-page grid (title, count, query, Clear, pop-in cards) at the top of <main> on every page except /products/:id; ChatWidget calls show(page), navigates to /products when on a detail page, and adds a "Showing N on the page" note; ProductCard accepts chat results and always links to /products/:id. Also fixed a TS error in vite.config.ts (process declaration).
+- prompt.md: "Browsing searches -> product cards on the page" (when to set show_on_page, one search for the whole request, use category_name for garment types, keep the reply short; not for single-product questions).
+- Browser tests: hoodies -> 27 cards on Home; page card -> detail page (large image + full info); Back keeps results; price question leaves page unchanged; chat card -> detail; quarter-zips from a detail page -> /products with 11.
+- Found and fixed while testing: "grey" color returned nothing (grey = gray now); keyword search listed loose matches (now prefers products matching all query words); catalogue tags a full-zip jacket as "quarter zip" (data not edited; prompt makes the agent use category_name). Problem 6 tests re-run: 8/8.
+- Screenshots p7_chat_search_page_cards.jpg, p7_card_opens_detail.jpg, p7_quarter_zips_on_products_page.jpg. Harness section 6, AI_prompts Problem 7.
+
+[13] 2026-10-24
+PROMPT:
+Problem 8: Customer memory. When a shopper is logged in, save their chat history in the database in an appropriate table and reload it when they return. The agent should know who is chatting (name, email) - put that in agent reps (or an equivalent clear pattern) and/or tolls the agent can call. Also pass enough page context that if someone is on a product page and asks "do you have this in pink?" the agent knows which item they mean. Hint: you can put code into the agent context. Guests can still, chat but history only needs to persist for logged-in users. Document in output/harness.md: how user chat history is stored, what customer fields the agent sees, and how page context is passed.
+
+RESPONSE:
+- History: kept the existing chat_messages table (user_id, role, content, products_json, created_at); saved only for logged-in users; reloaded via GET /api/chat/history (panel) and load_history (agent, last 10, with a "[Product cards shown: ...]" note on assistant turns).
+- Customer: CustomerContext {first_name, last_name, name, email, member_since} built from the session cookie's users row -> ShopDeps.customer -> agent.py @agent.instructions code writes "Who is chatting"; tool get_customer_profile. Never the password hash, user id, or others' data; no tool can look up other users.
+- Page: the widget sends page {path, results_title}; tools.viewing_context() checks /products/<id> against the catalogue -> ViewingContext -> ShopDeps.page -> "Where the shopper is" instructions + tool get_current_page.
+- prompt.md: "Customer memory and page context" section + 2 tools in the table. Frontend: panel opens at the latest message.
+- Tests (browser): guest "this in pink" on Fencing page OK; guest name/email -> "guest"; Grace on Davenport page "this in pink" OK; her email OK; Ada impersonation refused; full reload -> history restored + "crewneck I was looking at earlier in M" -> only 5 left (DB: 5); logout resets; Test User sees only own 6 seed messages. DB: 22 seed + 14 Grace rows, 0 guest rows.
+- Screenshots p8_this_in_pink_logged_in.jpg, p8_memory_after_reload.jpg. Harness section 7; AI_prompts Problem 8.
+
+[14] 2026-10-24
+PROMPT:
+Problem 9: usability improvements. now that the core shop works, improve it. choose and implement: 
+-2 front end usability improvements
+-2 agent/backend usability improvements. 
+Front end improvements are thing that make the site looks better and easier to use. For example, ensure color blind friendly color palettes, organize information relatively densely so people can see options and functionality easily, and ensure design elements are on brand for a cohesive visual experience. Agent/backend improvements are things that make the agent output better, more accurate or softer. There could be new agent tools that make the agent run faster or cheaper. Write output/usability.md before or as you build. For each improvement, say: 
+-what you added
+-why it helps a Campus Customs shopper or the business 
+Then makes sure all improvements actually show up in the running app because graders will read the write up and look for the features.
+
+RESPONSE:
+Wrote output/usability.md first as a plan (data: 77/102 products have a sold-out size, 71 have a low size), then built and verified:
+- FE1 color-blind-safe size strip on every card (blue solid / amber "!" / dashed crossed "✕"), legend, product page size buttons with ✓/!/✕, dark sold-out badge, aria-labels. Contrast 12.2/8.3/4.8:1 (WCAG AA). Grayscale screenshot check. API /api/products + ProductCard gained size_stock.
+- FE2 sticky Products toolbar: My size (in-stock filter), Sort (5 options), Hide sold out, count, Reset; state in URL params; denser grid; focus rings. Hoodies+L = 18/25, matching the DB.
+- BE1 quick-reply suggestions: ChatReply/ChatResponse.suggestions, prompt rule, clean_suggestions(), chips under the latest reply + greeting; tapping sends. Tested on the Fencing page.
+- BE2 find_alternatives tool (+ AlternativesResult/Alternative types, prompt rule). Benchmark script: requests 12 -> 7, tokens 50,478 -> 30,219, time 20.1s -> 13.6s, and better answers.
+- Fixed while testing: chips moved below the product cards; corrected the contrast comments. Problem 6 regression 8/8.
+- Screenshots p9_fe_toolbar_and_size_strips, p9_fe_detail_size_buttons, p9_fe_grayscale_check, p9_be_suggestion_chip_clicked, p9_be_find_alternatives. usability.md final, harness section 8, AI_prompts Problem 9.
+
+[15] 2026-10-24
+PROMPT:
+(screenshot of the expected file layout) Before we proceed with the rest of the problems lets push what we have so far to github. We can do another push when the project is complete. Put the code in the hw4 folder and push it to a public GitHub respository. Do not put my real .env, campus_customs.db or products images in the GitHub repo. Use .hitignore include .env.example with placeholders only. This image shows the expected file layout. the agent itself is four files under backend/: prompts/prompt.md, agent.py, tools.py and model.py. Readme.md should explain how to run the front end and back end after placing the data pack.
+
+RESPONSE:
+- Found the user's existing public repo AmarantaUrsula/Hw4-AI-for-managers (GitHub Desktop clone "Hw4 AI for managers/" inside hw4, 2 commits with .gitattributes). Initialized git in hw4/ on top of origin/main and pushed there (gh CLI isn't installed).
+- agent.py now loads hw4/.env first (then backend/.env, then the course-folder .env), so a fresh clone works with .env.example -> .env. db.py/main.py give a clear "place the data pack" error if data/ is missing.
+- Added .gitignore (secrets, data/*, *.db, build artifacts, the local clone, DraftPrompts.rtf), .env.example (placeholders), requirements.txt (pinned), data/README.md, and a rewritten README.md (layout, place data pack, .env, run backend on 8000, run frontend on 5174, try it).
+- Staged 71 files; scanned them for the real Portkey key, session secret, Grace's test password, and password hash digests: none. Not pushed: .env files, campus_customs*.db, data/products images, backend/.session_secret, backend/test_accounts.local.md, the clone folder, DraftPrompts.rtf.
+- Layout notes: the agent file is model.py (as the user wrote; the image shows models.py). output/design.md, app_check.html, app_check_images/, audit_trail.json are for later problems.
+
